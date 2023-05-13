@@ -1,9 +1,10 @@
 import { Metaplex } from '@solana-suite/nft';
-import { Sortable } from '@solana-suite/core';
+import { Sortable, SplToken } from '@solana-suite/core';
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import { Card } from '@mui/material';
 
 // const demoOwner = 'Hh7nDDB8nNY2QcQLHG5SdVKXd6Q3ZpiT5CBxnxCxjkDp';
 // const demoSecret =
@@ -32,7 +33,7 @@ import Grid from '@mui/material/Grid';
 //   console.log(res.unwrap().toExplorerUrl());
 // })();
 
-const NftContents = ({ value }) => {
+const Contents = ({ value }) => {
   let dateTime = '';
   if (value.dateTime) {
     dateTime = value.dateTime.toString();
@@ -59,15 +60,26 @@ const NftContents = ({ value }) => {
 };
 
 function App() {
-  const [histories, setHistories] = useState([]);
+  const [nftHistories, setNftHistories] = useState([]);
+  const [tokenHistories, setTokenHistories] = useState([]);
   const owner = 'CGDRajhcFo9ysuUjBsbwCQHKJuCHiXeEUrMKSot1eyay';
 
   useEffect(() => {
     Metaplex.findByOwner(
       owner,
       (arrs) => {
-        setHistories(arrs.unwrap());
-      },
+        setNftHistories(arrs.unwrap());
+      }
+      // {
+      //   sortable: Sortable.Desc,
+      //   isHolder: true,
+      // }
+    );
+    SplToken.findByOwner(
+      owner,
+      (arrs) => {
+        setTokenHistories(arrs.unwrap());
+      }
       // {
       //   sortable: Sortable.Desc,
       //   isHolder: true,
@@ -75,19 +87,34 @@ function App() {
     );
   }, []);
 
-  console.log(histories);
+  console.log(nftHistories);
+  console.log(tokenHistories);
   return (
     <>
       <h1>Solana Suite Demo</h1>
       <Paper>
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-            {histories.length > 1 &&
-              histories.map((history) => {
-                return <NftContents value={history} />;
-              })}
-          </Grid>
-        </Box>
+        <Card>
+          <h3>NFT</h3>
+          <Box sx={{ flexGrow: 1 }}>
+            <Grid container spacing={2}>
+              {nftHistories.length > 1 &&
+                nftHistories.map((history) => {
+                  return <Contents value={history} />;
+                })}
+            </Grid>
+          </Box>
+        </Card>
+        <Card>
+          <h3>Token</h3>
+          <Box sx={{ flexGrow: 1 }}>
+            <Grid container spacing={2}>
+              {tokenHistories.length > 1 &&
+                tokenHistories.map((history) => {
+                  return <Contents value={history} />;
+                })}
+            </Grid>
+          </Box>
+        </Card>
       </Paper>
     </>
   );

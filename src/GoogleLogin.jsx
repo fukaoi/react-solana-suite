@@ -1,12 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import { Button } from '@mui/material';
 
 function GoogleAuthComponentLogin() {
   const login = useGoogleLogin({
-    onSuccess: (codeResponse) => console.log(codeResponse), // 認証コードを取得
-    flow: 'auth-code',
-    scope: 'email profile openid', // scopeはスペース区切り
+    onSuccess: async (codeResponse) => {
+      console.log(codeResponse.access_token);
+      const url =
+        'https://people.googleapis.com/v1/people/me?personFields=names';
+      const response = await fetch(url, {
+        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        // credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+          Authorization: `Bearer ${codeResponse.access_token}`,
+        },
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      });
+      console.log('#api response: ', await response.json());
+    },
+    // flow: 'auth-code',
+    flow: 'implicit',
+    scope: 'profile', // scopeはスペース区切り
   });
 
   return (
